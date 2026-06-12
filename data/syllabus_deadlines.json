@@ -1,0 +1,102 @@
+{
+  "student": {
+    "id": "SC-2024-08421",
+    "name": "Sarah Chen",
+    "major": "Business Analytics",
+    "graduation_year": 2027
+  },
+  "academic_calendar": {
+    "current_semester": "Summer 2026",
+    "semester_start": "2026-06-01",
+    "semester_end": "2026-08-15"
+  },
+  "courses": [
+    {
+      "course_code": "BUS-301",
+      "title": "Financial Analysis",
+      "instructor": "Dr. Patricia Wong",
+      "credits": 3,
+      "meeting_times": "MWF 10:00-11:00 AM",
+      "deadlines": [
+        {
+          "assignment": "Case Study 1",
+          "due_date": "2026-06-15",
+          "type": "individual",
+          "weight": 0.15
+        },
+        {
+          "assignment": "Midterm Exam",
+          "due_date": "2026-06-22",
+          "type": "exam",
+          "weight": 0.30,
+          "notes": "Covers chapters 1-8, 2 hours, in-person at Classroom 204"
+        },
+        {
+          "assignment": "Group Project - Proposal",
+          "due_date": "2026-06-29",
+          "type": "group",
+          "weight": 0.20,
+          "notes": "4-person team, 10-page proposal minimum"
+        },
+        {
+          "assignment": "Final Exam",
+          "due_date": "2026-08-10",
+          "type": "exam",
+          "weight": 0.35,
+          "notes": "Cumulative, 3 hours, comprehensive"
+        }
+      ]
+    },
+    {
+      "course_code": "MATH-215",
+      "title": "Statistics for Business",
+      "instructor": "Dr. James Liu",
+      "credits": 3,
+      "meeting_times": "TTh 2:00-3:30 PM",
+      "deadlines": [
+        {
+          "assignment": "Problem Set 3",
+          "due_date": "2026-06-17",
+          "type": "homework",
+          "weight": 0.10
+        },
+        {
+          "assignment": "Quiz 2",
+          "due_date": "2026-06-24",
+          "type": "quiz",
+          "weight": 0.25,
+          "notes": "Online, 45 minutes, multiple choice and short answer"
+        },
+        {
+          "assignment": "Data Analysis Project",
+          "due_date": "2026-07-15",
+          "type": "project",
+          "weight": 0.35
+        },
+        {
+          "assignment": "Final Exam",
+          "due_date": "2026-08-12",
+          "type": "exam",
+          "weight": 0.30
+        }
+      ]
+    }
+  ],
+  "athletic_calendar": [
+    {
+      "event": "Conference Championship Tournament - Dallas",
+      "start_date": "2026-06-20",
+      "end_date": "2026-06-23",
+      "travel_required": true,
+      "notes": "Early flight 6:30 AM June 20, confirmation DELTA-7849KL"
+    },
+    {
+      "event": "Post-Season Training Camp",
+      "start_date": "2026-07-08",
+      "end_date": "2026-07-14",
+      "travel_required": false,
+      "intensity": "high"
+    }
+  ],
+  "important_notes": "Sarah is a student-athlete balancing intense academic coursework with competitive athletics. June 22 midterm exam conflicts with championship tournament travel. Recommend early exam accommodation request or alternative assessment method."
+}
