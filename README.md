@@ -344,7 +344,7 @@ Easy to integrate with:
 
 ## 👥 Built By
 
-**Team ScoutFlow** for the Microsoft Agents League Hackathon 2026
+**Kuldeep Sharma** for the Microsoft Agents League Hackathon 2026
 
 **GitHub:** [@KSharmaai](https://github.com/KSharmaai)
 
