@@ -1,8 +1,8 @@
 ```mermaid
 flowchart TD
     A[Ingestion: messy_schedule.txt] --> B[Phase 1: Context Parsing]
-    B --> B1[Extract Flights (RegEx)]
-    B --> B2[Extract Practice Metrics (RegEx)]
+    B --> B1[Extract Flights]
+    B --> B2[Extract Practice Metrics]
     B1 --> C[Phase 2: Constraint Cross-Match]
     B2 --> C
     C --> C1[Match Syllabus Deadlines]
@@ -19,7 +19,7 @@ flowchart TD
     G --> I
     H --> I
     I --> J[Write compliance_status.json]
-    I --> K[Generate accommodation email: "Dear Dr. Wong,"]
+    I --> K[Generate accommodation email]
     J --> L[Streamlit Dashboard / Output Folder]
     K --> L
 ```
