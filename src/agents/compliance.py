@@ -96,21 +96,21 @@ class ComplianceAgent:
             if schedule_path.exists():
                 with open(schedule_path, "r") as f:
                     self.schedule_text = f.read()
-                self._print_action(f"✓ Loaded messy_schedule.txt ({len(self.schedule_text)} chars)")
+                self._print_action(f"Loaded messy_schedule.txt ({len(self.schedule_text)} chars)")
             
             # Load syllabus deadlines
             syllabus_path = self.data_dir / "syllabus_deadlines.json"
             if syllabus_path.exists():
                 with open(syllabus_path, "r") as f:
                     self.syllabus_data = json.load(f)
-                self._print_action(f"✓ Loaded syllabus_deadlines.json")
+                self._print_action(f"Loaded syllabus_deadlines.json")
             
             # Load compliance rules
             compliance_path = self.data_dir / "compliance_rules.json"
             if compliance_path.exists():
                 with open(compliance_path, "r") as f:
                     self.compliance_rules = json.load(f)
-                self._print_action(f"✓ Loaded compliance_rules.json")
+                self._print_action(f"Loaded compliance_rules.json")
         
         except Exception as e:
             print(f"[ERROR] Failed to load data: {e}")
@@ -135,29 +135,30 @@ class ComplianceAgent:
     def _parse_schedule(self):
         """
         Step 1: Parse unstructured schedule text to extract dates and durations.
-        
-        Extracts:
-        - Flight information and timing
-        - Practice schedule changes
-        - Key dates and deadlines
         """
+        self._parse_schedule_impl()
+
+    def _parse_schedule_impl(self):
         self._print_thought("Parsing unstructured email text for schedule information...")
         
         if not self.schedule_text:
             self._print_evaluating("No schedule text available")
             return
         
-        # Extract flight information
-        flight_pattern = r"(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm))"
+        # Extract flight information (robust to small formatting variations)
+        # Accept times like '6:30 AM', '6:30AM', '06:30', etc.
+        flight_pattern = r"(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm)?)"
         flights = re.findall(flight_pattern, self.schedule_text)
         if flights:
             self._print_evaluating(f"Found flight times: {flights}")
-        
-        # Extract flight confirmation
-        confirmation_pattern = r"DELTA-\w+"
+
+        # Extract flight confirmation (case-insensitive, allow hyphens/underscores)
+        confirmation_pattern = r"(?i)(DELTA)[-_]?([A-Z0-9]+)"
         confirmations = re.findall(confirmation_pattern, self.schedule_text)
         if confirmations:
-            self._print_action(f"Extracted flight confirmation: {confirmations[0]}")
+            # confirmations is list of tuples from groups; reconstruct safely
+            conf_val = f"{confirmations[0][0]}-{confirmations[0][1]}"
+            self._print_action(f"Extracted flight confirmation: {conf_val}")
         
         # Parse practice hours
         practice_lines = [line for line in self.schedule_text.split('\n') if 'hours' in line.lower()]
@@ -190,22 +191,39 @@ class ComplianceAgent:
                     practice_hours['Conditioning (MWF)'] = hours
                     self._print_action(f"Extracted: Conditioning sessions = {hours} hours/day")
         
-        # Extract tournament dates
-        tournament_pattern = r"June (\d+)(?:-(\d+))?"
+        # Extract tournament dates (handle 'June 20-23' or 'Jun 20 - 23')
+        tournament_pattern = r"(?i)(?:June|Jun)\s+(\d{1,2})(?:\s*-\s*(\d{1,2}))?"
         tournament_dates = re.findall(tournament_pattern, self.schedule_text)
         if tournament_dates:
-            self._print_action(f"Extracted: Championship tournament June 20-23, 2026")
+            self._print_action(f"Extracted tournament date tokens: {tournament_dates}")
         
         # Store parsed data
+        # Choose sensible defaults but prefer extracted values when available
+        flight_time_val = flights[0] if flights else None
+        flight_conf_val = (f"{confirmations[0][0]}-{confirmations[0][1]}") if confirmations else None
+
+        # If tournament token parsing returned values, construct ISO dates assuming 2026
+        tournament_start = '2026-06-20'
+        tournament_end = '2026-06-23'
+        if tournament_dates:
+            try:
+                start_day = int(tournament_dates[0][0])
+                end_day = int(tournament_dates[0][1]) if tournament_dates[0][1] else start_day
+                tournament_start = f"2026-06-{start_day:02d}"
+                tournament_end = f"2026-06-{end_day:02d}"
+            except Exception:
+                # fallback to sensible defaults
+                pass
+
         self.parsed_schedule = {
             'practice_hours': practice_hours,
             'tournament_dates': {
-                'start': '2026-06-20',
-                'end': '2026-06-23'
+                'start': tournament_start,
+                'end': tournament_end
             },
-            'flight_confirmation': confirmations[0] if confirmations else 'DELTA-7849KL',
-            'flight_time': '6:30 AM',
-            'flight_date': '2026-06-20'
+            'flight_confirmation': flight_conf_val or 'DELTA-7849KL',
+            'flight_time': flight_time_val or '6:30 AM',
+            'flight_date': tournament_start
         }
         
         self._print_thought(f"Schedule parsing complete. Extracted {len(practice_hours)} practice categories.")
@@ -213,13 +231,10 @@ class ComplianceAgent:
     def _verify_constraints(self):
         """
         Step 2: Cross-reference parsed hours against compliance rules and exam schedules.
-        
-        Checks:
-        - Daily practice hour limits (4 hours max)
-        - Weekly practice hour limits (20 hours max)
-        - Exam conflicts with tournament travel
-        - Session rest requirements
         """
+        self._verify_constraints_impl()
+
+    def _verify_constraints_impl(self):
         self._print_thought("Beginning constraint verification against NCAA CARA rules...")
         
         if not self.compliance_rules or not self.parsed_schedule:
@@ -253,10 +268,9 @@ class ComplianceAgent:
                 self.violations.append(violation)
                 self._print_action(f"🚨 VIOLATION: {day} exceeds daily limit ({hours}h > {daily_max}h)")
             elif hours > daily_warning:
-                self._print_action(f"⚠️  WARNING: {day} approaching daily limit ({hours}h > {daily_warning}h warning)")
+                self._print_action(f"WARNING: {day} approaching daily limit ({hours}h > {daily_warning}h warning)")
         
         # Calculate and check weekly total
-        # Assuming Mon-Thu is 3 hrs, Fri is 4 hrs, conditioning (MWF) is 1.5 hrs
         weekly_total = 0
         days_schedule = {
             'Monday': 3 + 1.5,
@@ -285,7 +299,7 @@ class ComplianceAgent:
             self.violations.append(violation)
             self._print_action(f"🚨 VIOLATION: Weekly total exceeds limit ({weekly_total}h > {weekly_max}h)")
         elif weekly_total > weekly_warning:
-            self._print_action(f"⚠️  WARNING: Weekly total approaching limit ({weekly_total}h > {weekly_warning}h warning)")
+            self._print_action(f"WARNING: Weekly total approaching limit ({weekly_total}h > {weekly_warning}h warning)")
         
         # Check exam conflicts with tournament travel
         if self.syllabus_data and 'courses' in self.syllabus_data:
@@ -315,7 +329,7 @@ class ComplianceAgent:
                                 'severity': 'CRITICAL'
                             }
                             self.conflicts.append(conflict)
-                            self._print_action(f"🚨 CRITICAL CONFLICT: {course_code} {deadline.get('assignment')} on {exam_date_str} during championship tournament")
+                            self._print_action(f"CRITICAL CONFLICT: {course_code} {deadline.get('assignment')} on {exam_date_str} during championship tournament")
                         
                         # Check if exam is within 48 hours before/after tournament
                         days_before = (tournament_start - exam_date).days
@@ -331,18 +345,17 @@ class ComplianceAgent:
                                 'severity': 'HIGH'
                             }
                             self.conflicts.append(conflict)
-                            self._print_action(f"⚠️  HIGH CONFLICT: {course_code} {deadline.get('assignment')} is {days_before} days before tournament travel")
+                            self._print_action(f"WARNING: {course_code} {deadline.get('assignment')} is {days_before} days before tournament travel")
         
         self._print_thought(f"Constraint verification complete. Found {len(self.violations)} violations and {len(self.conflicts)} conflicts.")
 
     def _synthesize_remediation(self) -> ComplianceStatus:
         """
         Step 3: Generate remediation actions and compliance-aligned recommendations.
-        
-        Outputs:
-        - Structured JSON status with alert flags
-        - Professional email drafts requesting exam accommodations
         """
+        return self._synthesize_remediation_impl()
+
+    def _synthesize_remediation_impl(self) -> ComplianceStatus:
         self._print_thought("Synthesizing remediation actions based on identified violations and conflicts...")
         
         # Determine overall status
@@ -413,7 +426,7 @@ class ComplianceAgent:
                 with open(filepath, 'w') as f:
                     json.dump(email, f, indent=2)
                 
-                self._print_action(f"✓ Wrote {filename}")
+                self._print_action(f"Wrote {filename}")
         
         # Create comprehensive status report
         status = ComplianceStatus(
@@ -436,7 +449,7 @@ class ComplianceAgent:
         with open(status_filepath, 'w') as f:
             json.dump(asdict(status), f, indent=2, default=str)
         
-        self._print_action(f"✓ Wrote compliance_status.json")
+        self._print_action(f"Wrote compliance_status.json")
         
         return status
 
@@ -463,23 +476,44 @@ class ComplianceAgent:
         return ViolationLevel.WARNING.value
 
     def _generate_accommodation_email(self, conflict: Dict) -> Dict:
-        """Generate a professional accommodation request email."""
+        """Generate a professional accommodation request email with corrected title parsing logic."""
         course_code = conflict['course']
         exam_name = conflict['exam']
         exam_date = conflict['exam_date']
         student_name = self.syllabus_data['student']['name']
         student_id = self.syllabus_data['student']['id']
         
-        # Find course details
+        # Find course details and handle structural title assignments securely
         course_info = None
-        instructor_name = "Professor"
+        instructor_greeting = "Professor"
         for course in self.syllabus_data['courses']:
             if course['course_code'] == course_code:
                 course_info = course
-                instructor_name = course.get('instructor', 'Professor').split()[-1]
+                raw_instructor = course.get('instructor', 'Professor').strip()
+
+                # Normalize common honorifics and build a polite greeting using the last name
+                m = re.match(r"(?i)^(Dr\.?|Professor|Prof\.?|Mr\.?|Mrs\.?|Ms\.?)\s+(.*)$", raw_instructor)
+                if m:
+                    honorific = m.group(1)
+                    rest = m.group(2).strip()
+                    last_name = rest.split()[-1] if rest else honorific
+                    # Normalize tokens to common formal forms
+                    honorific_norm = honorific.rstrip('.').title()
+                    if honorific_norm.lower() in ("dr", "prof", "professor"):
+                        # prefer 'Dr.' or 'Professor' as appropriate
+                        if honorific_norm.lower() == 'dr':
+                            instructor_greeting = f"Dr. {last_name}"
+                        else:
+                            instructor_greeting = f"Professor {last_name}"
+                    else:
+                        instructor_greeting = f"{honorific_norm} {last_name}"
+                else:
+                    # No explicit honorific - default to 'Professor <LastName>' for academic tone
+                    last_name = raw_instructor.split()[-1]
+                    instructor_greeting = f"Professor {last_name}"
                 break
         
-        email_body = f"""Dear {instructor_name},
+        email_body = f"""Dear {instructor_greeting},
 
 I am writing to request a potential accommodation for the {exam_name} scheduled for {exam_date} in {course_code}.
 
@@ -505,7 +539,7 @@ Major: {self.syllabus_data['student']['major']}
         return {
             'course_code': course_code,
             'course_title': course_info['title'] if course_info else 'Unknown',
-            'instructor': instructor_name,
+            'instructor': instructor_greeting,
             'student_name': student_name,
             'student_id': student_id,
             'exam_date': exam_date,

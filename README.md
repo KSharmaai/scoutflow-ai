@@ -1,5 +1,11 @@
 # ScoutFlow AI 🚀
 
+<div style="background:linear-gradient(90deg,#004578,#0078d4);padding:12px;border-radius:8px;margin-bottom:12px;text-align:center;">
+  <a href="./AGENTS_LEAGUE_SUBMISSION.html" style="color:#fff;font-weight:700;text-decoration:none;font-family:Segoe UI, system-ui, sans-serif;">Open Official Agents League Submission Guide →</a>
+</div>
+
+**Navigation Index:** [Architecture & Flow](docs/ARCHITECTURE.md)
+
 ### Autonomous Student-Athlete Productivity & Compliance Tracking Agent
 **Built for the Microsoft Agents League Hackathon 2026** | **Track:** Reasoning Agents  
 **Core Technologies:** Python, Microsoft Foundry-inspired Architecture, NCAA CARA Compliance

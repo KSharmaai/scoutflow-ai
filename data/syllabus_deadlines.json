@@ -28,14 +28,14 @@
           "assignment": "Midterm Exam",
           "due_date": "2026-06-22",
           "type": "exam",
-          "weight": 0.30,
+          "weight": 0.3,
           "notes": "Covers chapters 1-8, 2 hours, in-person at Classroom 204"
         },
         {
           "assignment": "Group Project - Proposal",
           "due_date": "2026-06-29",
           "type": "group",
-          "weight": 0.20,
+          "weight": 0.2,
           "notes": "4-person team, 10-page proposal minimum"
         },
         {
@@ -58,7 +58,7 @@
           "assignment": "Problem Set 3",
           "due_date": "2026-06-17",
           "type": "homework",
-          "weight": 0.10
+          "weight": 0.1
         },
         {
           "assignment": "Quiz 2",
@@ -77,7 +77,7 @@
           "assignment": "Final Exam",
           "due_date": "2026-08-12",
           "type": "exam",
-          "weight": 0.30
+          "weight": 0.3
         }
       ]
     }

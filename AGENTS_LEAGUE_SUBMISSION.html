@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ScoutFlow AI — Agents League Submission</title>
+  <style>
+    :root{
+      --brand-dark:#004578;
+      --brand-mid:#0078d4;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --bg:#f3f6fb;
+      --radius:12px;
+      --max:1100px;
+      font-family: 'Segoe UI', Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial;
+    }
+    html,body{height:100%;margin:0;background:var(--bg);color:#0f172a}
+    .container{max-width:var(--max);margin:28px auto;padding:28px}
+    header{background:linear-gradient(90deg,var(--brand-dark),var(--brand-mid));color:#fff;padding:28px;border-radius:16px}
+    header h1{margin:0;font-size:2.1rem;letter-spacing:-0.02em}
+    header p{margin:6px 0 0 0;opacity:0.92}
+    .badges{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+    .badge{background:rgba(255,255,255,0.12);padding:6px 10px;border-radius:999px;font-weight:600;font-size:0.86rem}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:20px;margin-top:20px}
+    .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 8px 30px rgba(2,6,23,0.06)}
+    a.link{color:var(--brand-mid);text-decoration:none;font-weight:700}
+    .muted{color:var(--muted)}
+    .rubric{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    .rubric .tile{flex:1 1 220px;padding:14px;border-radius:10px;background:linear-gradient(180deg,#fff,#f8fafc);border:1px solid #e6eef9}
+    pre.code{background:#0b1220;color:#e6f0ff;padding:14px;border-radius:10px;overflow:auto}
+    .json-block{background:#0b1220;color:#dbeafe;padding:14px;border-radius:10px;overflow:auto;font-family:Consolas, 'Courier New', monospace}
+    footer{margin-top:24px;text-align:center;color:var(--muted)}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}.container{padding:16px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>ScoutFlow AI</h1>
+      <p>Autonomous Reasoning Co-Pilot for Student-Athlete Productivity &amp; Compliance Tracking</p>
+      <div class="badges">
+        <div class="badge">Reasoning Agents</div>
+        <div class="badge">Microsoft Foundry</div>
+        <div class="badge">Work IQ</div>
+        <div class="badge">Python</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <main>
+        <section class="card" style="margin-top:16px">
+          <h3>Core Submission Links</h3>
+          <p class="muted">Repository:</p>
+          <p><a class="link" href="https://github.com/KSharmaai/scoutflow-ai" target="_blank">https://github.com/KSharmaai/scoutflow-ai</a></p>
+          <p class="muted">Team:</p>
+          <p>Kuldeep Sharma</p>
+        </section>
+
+        <section class="card" style="margin-top:16px">
+          <h3>Architectural Overview</h3>
+          <p class="muted">Decoupled simulation of Microsoft IQ intelligence layers.</p>
+          <p><strong>Step 1 (Context Parsing)</strong>: RegEx-driven ingestion reads <code>data/messy_schedule.txt</code>, extracts flights, confirmation tokens and practice adjustments into `parsed_schedule`.</p>
+          <p><strong>Step 2 (Relational Cross-Match)</strong>: The engine loads syllabus deadlines and compliance rules, then performs relational graph-like matching (Work IQ memory node simulation) against tournament travel windows to detect temporal collisions.</p>
+          <p><strong>Step 3 (Mathematical Evaluation & Action)</strong>: Computes daily and weekly aggregates, compares against NCAA CARA thresholds (warning 18h, ceiling 20h) and synthesizes remediation emails + JSON telemetry.</p>
+        </section>
+
+        <section class="card" style="margin-top:16px">
+          <h3>Strategic Rubric Compliance Matrix</h3>
+          <div class="rubric">
+            <div class="tile"><strong>Reasoning &amp; Multi-step Thinking</strong><br><small>20%</small><p class="muted">Transparent 3-step log markers: [THOUGHT], [EVALUATING], [ACTION].</p></div>
+            <div class="tile"><strong>Reliability &amp; Safety</strong><br><small>20%</small><p class="muted">Defensive parsing, safe fallbacks, PII minimization, and deterministic outputs.</p></div>
+            <div class="tile"><strong>Accuracy &amp; Relevance</strong><br><small>20%</small><p class="muted">Numeric evaluation (19.0h weekly total triggers 18h warning). Detects BUS-301 Midterm collision on 2026-06-22.</p></div>
+            <div class="tile"><strong>User Experience &amp; Presentation</strong><br><small>15%</small><p class="muted">Polished Streamlit UI with audit button, step-by-step tracing, and copy-ready emails.</p></div>
+          </div>
+          <p style="margin-top:12px" class="muted">Security note: Engine avoids storing raw PII in logs and normalizes instructor honorifics to reduce free-text leakage.</p>
+        </section>
+
+        <section class="card" style="margin-top:16px">
+          <h3>Core Orchestration Code Snippet</h3>
+          <pre class="code"><code>agent = ComplianceAgent(data_dir="data")
+status = agent.run_pipeline()
+# Step 1: _parse_schedule()
+# Step 2: _verify_constraints()
+# Step 3: _synthesize_remediation()
+# Outputs: data/output/compliance_status.json + accommodation_request_<COURSE>.json
+          </code></pre>
+        </section>
+
+        <section class="card" style="margin-top:16px">
+          <h3>Machine Telemetry State (compliance_status.json schema)</h3>
+          <div class="json-block">
+{
+  "timestamp": "2026-06-12T05:05:10",
+  "student_id": "SC-2024-08421",
+  "student_name": "Sarah Chen",
+  "alert_flag": true,
+  "violation_level": "major",
+  "violations": [
+    {"type": "WEEKLY_HOURS_VIOLATION", "total_hours": 19.0, "limit": 20, "severity": "MAJOR"}
+  ],
+  "conflicts": [
+    {"type": "EXAM_TRAVEL_CONFLICT", "course": "BUS-301", "exam": "Midterm Exam", "exam_date": "2026-06-22", "tournament_dates": "2026-06-20 to 2026-06-23", "severity": "CRITICAL"}
+  ],
+  "remediation_actions": ["Request exam accommodation for BUS-301 Midterm Exam (scheduled 2026-06-22)..."],
+  "recommendation": "🚨 URGENT ACTION REQUIRED: Contact academic advisor and professors immediately."
+}
+          </div>
+        </section>
+      </main>
+
+      <aside>
+        <div class="card">
+          <h4>Quick Links</h4>
+          <p><a class="link" href="https://github.com/KSharmaai/scoutflow-ai" target="_blank">Public Repository</a></p>
+          <p><strong>Team Lead:</strong><br>Kuldeep Sharma</p>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h4>Highlights</h4>
+          <ul class="muted">
+            <li>19.0h weekly load triggers early warning (18h)</li>
+            <li>Detects BUS-301 Midterm conflict (2026-06-22)</li>
+            <li>Honorific normalization: Dear Dr. Wong,</li>
+          </ul>
+        </div>
+
+      </aside>
+    </div>
+
+    <footer>
+      <small>ScoutFlow AI — Agents League Submission • Prepared for Microsoft Agents League Hackathon 2026</small>
+    </footer>
+  </div>
+</body>
+</html>

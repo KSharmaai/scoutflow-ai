@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-06-12T05:49:49.397429",
+  "student_id": "SC-2024-08421",
+  "student_name": "Sarah Chen",
+  "alert_flag": true,
+  "violation_level": "severe",
+  "violations": [],
+  "conflicts": [
+    {
+      "type": "EXAM_TRAVEL_CONFLICT",
+      "course": "BUS-301",
+      "exam": "Midterm Exam",
+      "exam_date": "2026-06-22",
+      "tournament_dates": "2026-06-20 to 2026-06-23",
+      "severity": "CRITICAL"
+    }
+  ],
+  "remediation_actions": [
+    "Request exam accommodation for BUS-301 Midterm Exam (scheduled 2026-06-22) due to mandatory championship tournament travel (2026-06-20 to 2026-06-23). Contact professor immediately."
+  ],
+  "recommendation": "\ud83d\udea8 URGENT ACTION REQUIRED: Critical exam-travel conflict detected. Contact academic advisor and professors immediately to arrange accommodations. Monitor compliance violations closely."
+}
