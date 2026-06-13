@@ -144,6 +144,10 @@ scoutflow-ai/
 ├── main.py                         # Streamlit frontend dashboard
 ├── setup_mock_data.py              # Mock data generator script
 ├── AGENTS_LEAGUE_SUBMISSION.html   # Official standalone league submission brief
+├── docs/
+│   ├── ARCHITECTURE.md             # Core system design blueprint & data flow
+│   ├── DEMO_SCRIPT.md              # 60-second video walkthrough narration script
+│   └── SUBMISSION_SLIDE.png        # High-resolution native presentation slide
 ├── src/
 │   └── agents/
 │       └── compliance.py           # Core ComplianceAgent reasoning engine
@@ -154,7 +158,7 @@ scoutflow-ai/
 │   └── output/                     # Generated compliance status & emails
 ├── tests/
 │   ├── test_compliance.py          # Framework functionality testing
-│   └── test_output_schema.py       # Data integrity contract testing
+    └── test_output_schema.py       # Data integrity contract testing
 ├── README.md                       # This file
 └── requirements.txt                # Python dependencies
 ```
