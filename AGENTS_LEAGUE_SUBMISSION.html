@@ -70,7 +70,7 @@
           <div class="rubric">
             <div class="tile"><strong>Reasoning &amp; Multi-step Thinking</strong><br><small>20%</small><p class="muted">Transparent 3-step log markers: [THOUGHT], [EVALUATING], [ACTION].</p></div>
             <div class="tile"><strong>Reliability &amp; Safety</strong><br><small>20%</small><p class="muted">Defensive parsing, safe fallbacks, PII minimization, and deterministic outputs.</p></div>
-            <div class="tile"><strong>Accuracy &amp; Relevance</strong><br><small>20%</small><p class="muted">Numeric evaluation (19.0h weekly total triggers 18h warning). Detects BUS-301 Midterm collision on 2026-06-22.</p></div>
+            <div class="tile"><strong>Accuracy &amp; Relevance</strong><br><small>20%</small><p class="muted">Numeric evaluation (24.5h weekly total exceeds 20h hard ceiling; 18h is warning). Detects BUS-301 Midterm collision on 2026-06-22.</p></div>
             <div class="tile"><strong>User Experience &amp; Presentation</strong><br><small>15%</small><p class="muted">Polished Streamlit UI with audit button, step-by-step tracing, and copy-ready emails.</p></div>
           </div>
           <p style="margin-top:12px" class="muted">Security note: Engine avoids storing raw PII in logs and normalizes instructor honorifics to reduce free-text leakage.</p>
@@ -119,7 +119,7 @@ status = agent.run_pipeline()
         <div class="card" style="margin-top:16px">
           <h4>Highlights</h4>
           <ul class="muted">
-            <li>19.0h weekly load triggers early warning (18h)</li>
+            <li>24.5h weekly load exceeds hard ceiling (20h)</li>
             <li>Detects BUS-301 Midterm conflict (2026-06-22)</li>
             <li>Honorific normalization: Dear Dr. Wong,</li>
           </ul>
