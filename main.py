@@ -6,6 +6,7 @@ Interactive interface for demonstrating the autonomous compliance audit system
 
 import streamlit as st
 import json
+import html
 from pathlib import Path
 from datetime import datetime
 import sys
@@ -132,6 +133,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+def _sanitize_html(value):
+    """Escape text for safe inclusion in HTML blocks."""
+    return html.escape(str(value)) if value is not None else ""
+
+
 def load_athlete_data():
     """Load athlete profile from syllabus_deadlines.json"""
     try:
@@ -145,14 +151,19 @@ def load_athlete_data():
 
 def display_athlete_status(athlete):
     """Display athlete status card."""
+    athlete_name = _sanitize_html(athlete.get('name', 'Unknown'))
+    athlete_id = _sanitize_html(athlete.get('id', 'Unknown'))
+    athlete_major = _sanitize_html(athlete.get('major', 'Unknown'))
+    athlete_grad = _sanitize_html(athlete.get('graduation_year', 'Unknown'))
+
     html = f"""
     <div class="fluent-card">
         <h3>👤 Student-Athlete Profile Information</h3>
         <table style="width:100%; border-collapse:collapse; font-size:0.95em;">
-            <tr style="border-bottom: 1px solid #f3f2f1;"><td style="padding:6px 0; color:#605e5c;"><strong>Full Name:</strong></td><td style="text-align:right; font-weight:500;">{athlete['name']}</td></tr>
-            <tr style="border-bottom: 1px solid #f3f2f1;"><td style="padding:6px 0; color:#605e5c;"><strong>Institutional ID:</strong></td><td style="text-align:right; font-weight:500;">`{athlete['id']}`</td></tr>
-            <tr style="border-bottom: 1px solid #f3f2f1;"><td style="padding:6px 0; color:#605e5c;"><strong>Academic Major:</strong></td><td style="text-align:right; font-weight:500;">{athlete['major']}</td></tr>
-            <tr><td style="padding:6px 0; color:#605e5c;"><strong>Graduation Cohort:</strong></td><td style="text-align:right; font-weight:500;">{athlete['graduation_year']}</td></tr>
+            <tr style="border-bottom: 1px solid #f3f2f1;"><td style="padding:6px 0; color:#605e5c;"><strong>Full Name:</strong></td><td style="text-align:right; font-weight:500;">{athlete_name}</td></tr>
+            <tr style="border-bottom: 1px solid #f3f2f1;"><td style="padding:6px 0; color:#605e5c;"><strong>Institutional ID:</strong></td><td style="text-align:right; font-weight:500;">`{athlete_id}`</td></tr>
+            <tr style="border-bottom: 1px solid #f3f2f1;"><td style="padding:6px 0; color:#605e5c;"><strong>Academic Major:</strong></td><td style="text-align:right; font-weight:500;">{athlete_major}</td></tr>
+            <tr><td style="padding:6px 0; color:#605e5c;"><strong>Graduation Cohort:</strong></td><td style="text-align:right; font-weight:500;">{athlete_grad}</td></tr>
         </table>
     </div>
     """
@@ -179,12 +190,13 @@ def display_compliance_status(status):
         icon = "✅"
         level_text = "COMPLIANT STATUS VALIDATED"
 
+    timestamp = _sanitize_html(status.timestamp)
     html = f"""
     <div class="alert-banner {status_class}">
         <span style="font-size:1.2em; margin-right:8px;">{icon}</span> 
         <strong>System Audit Status: {level_text}</strong>
         <div style="font-size:0.88em; font-weight:normal; margin-top:4px; color:#323130;">
-            Active Violations: {len(status.violations)} | Detected Graph Conflicts: {len(status.conflicts)} | Timestamp: {status.timestamp}
+            Active Violations: {len(status.violations)} | Detected Graph Conflicts: {len(status.conflicts)} | Timestamp: {timestamp}
         </div>
     </div>
     """
@@ -236,13 +248,16 @@ def display_email_draft(course_code):
             with st.container():
                 col_e1, col_e2 = st.columns([4, 1])
                 with col_e1:
-                    st.markdown(f"**Recipient Registry:** `Prof. {email_data['instructor']}`")
-                    st.markdown(f"**Subject Line Allocation:** `{email_data['subject_line']}`")
+                    instructor = _sanitize_html(email_data.get('instructor', 'Unknown'))
+                    subject_line = _sanitize_html(email_data.get('subject_line', 'No Subject'))
+                    safe_course_code = _sanitize_html(course_code)
+                    st.markdown(f"**Recipient Registry:** `Prof. {instructor}`")
+                    st.markdown(f"**Subject Line Allocation:** `{subject_line}`")
                 with col_e2:
-                    if st.button(f"📋 Copy Draft Buffer", key=f"copy_{course_code}", use_container_width=True):
-                        st.session_state[f"copied_{course_code}"] = True
+                    if st.button(f"📋 Copy Draft Buffer", key=f"copy_{safe_course_code}", use_container_width=True):
+                        st.session_state[f"copied_{safe_course_code}"] = True
                         st.success("Buffer Updated")
-                
+
                 st.markdown('<div class="email-container">', unsafe_allow_html=True)
                 st.text(email_data['email_body'])
                 st.markdown('</div>', unsafe_allow_html=True)

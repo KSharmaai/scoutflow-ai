@@ -183,13 +183,51 @@ class ComplianceAgent:
                     practice_hours['Friday'] = hours
                     self._print_action(f"Extracted: Friday = {hours} hours/day")
             
-            # Extract conditioning sessions
-            if 'conditioning' in line.lower():
+            # Extract conditioning sessions only from the specific regular conditioning reference
+            if 'conditioning' in line.lower() and ('regular conditioning' in line.lower() or 'remain at' in line.lower() or 'conditioning sessions' in line.lower()):
                 match = re.search(r'(\d+\.?\d*)\s*hours?', line)
                 if match:
                     hours = float(match.group(1))
                     practice_hours['Conditioning (MWF)'] = hours
                     self._print_action(f"Extracted: Conditioning sessions = {hours} hours/day")
+        
+        # Find hidden mandatory events anywhere in the schedule text
+        hidden_event_patterns = [
+            ('Film Review', r"(?i)\bfilm review\b"),
+            ('Required Attendance', r"(?i)\brequired attendance\b|\bmandatory attendance\b|\bmandatory film review\b")
+        ]
+
+        def _parse_event_duration_text(text: str) -> float:
+            event_time_match = re.search(r"(\d{1,2}(?::\d{2})?)\s*-\s*(\d{1,2}(?::\d{2})?)\s*(AM|PM|am|pm)?", text)
+            if not event_time_match:
+                return 2.0
+
+            start_text, end_text, meridiem = event_time_match.groups()
+
+            def _to_decimal(value: str, suffix: Optional[str]) -> float:
+                time_string = value
+                if ':' not in value:
+                    time_string = f"{value}:00"
+                try:
+                    if suffix:
+                        dt = datetime.strptime(f"{time_string} {suffix.upper()}", "%I:%M %p")
+                    else:
+                        dt = datetime.strptime(time_string, "%I:%M")
+                except ValueError:
+                    dt = datetime.strptime(time_string, "%I:%M")
+                return dt.hour + dt.minute / 60.0
+
+            start_hour = _to_decimal(start_text, meridiem)
+            end_hour = _to_decimal(end_text, meridiem)
+            if end_hour <= start_hour:
+                end_hour += 12
+            return round(end_hour - start_hour, 2)
+
+        for event_name, pattern in hidden_event_patterns:
+            if re.search(pattern, self.schedule_text) and event_name not in practice_hours:
+                event_duration = _parse_event_duration_text(self.schedule_text)
+                practice_hours[event_name] = event_duration
+                self._print_action(f"Detected hidden mandatory event '{event_name}' => {event_duration} hours")
         
         # Extract tournament dates (handle 'June 20-23' or 'Jun 20 - 23')
         tournament_pattern = r"(?i)(?:June|Jun)\s+(\d{1,2})(?:\s*-\s*(\d{1,2}))?"
@@ -199,7 +237,7 @@ class ComplianceAgent:
         
         # Store parsed data
         # Choose sensible defaults but prefer extracted values when available
-        flight_time_val = flights[0] if flights else None
+        flight_time_val = flights[-1] if flights else None
         flight_conf_val = (f"{confirmations[0][0]}-{confirmations[0][1]}") if confirmations else None
 
         # If tournament token parsing returned values, construct ISO dates assuming 2026
@@ -253,40 +291,48 @@ class ComplianceAgent:
         # Check practice hours against limits
         practice_hours = self.parsed_schedule.get('practice_hours', {})
         
-        for day, hours in practice_hours.items():
-            self._print_evaluating(f"Checking {day}: {hours} hours")
+        for category, hours in practice_hours.items():
+            self._print_evaluating(f"Checking {category}: {hours} hours")
             
-            # Daily limits
             if hours > daily_max:
                 violation = {
                     'type': 'DAILY_HOURS_VIOLATION',
-                    'day': day,
+                    'category': category,
                     'hours': hours,
                     'limit': daily_max,
                     'severity': 'MAJOR'
                 }
                 self.violations.append(violation)
-                self._print_action(f"🚨 VIOLATION: {day} exceeds daily limit ({hours}h > {daily_max}h)")
-            elif hours > daily_warning:
-                self._print_action(f"WARNING: {day} approaching daily limit ({hours}h > {daily_warning}h warning)")
+                self._print_action(f"🚨 VIOLATION: {category} exceeds daily limit ({hours}h > {daily_max}h)")
+            elif hours >= daily_warning:
+                violation = {
+                    'type': 'DAILY_HOURS_WARNING',
+                    'category': category,
+                    'hours': hours,
+                    'threshold': daily_warning,
+                    'severity': 'WARNING'
+                }
+                self.violations.append(violation)
+                self._print_action(f"WARNING: {category} approaching daily limit ({hours}h >= {daily_warning}h warning)")
         
-        # Calculate and check weekly total
-        weekly_total = 0
-        days_schedule = {
-            'Monday': 3 + 1.5,
-            'Tuesday': 3,
-            'Wednesday': 3 + 1.5,
-            'Thursday': 3,
-            'Friday': 4,
-            'Saturday': 0,
-            'Sunday': 0
-        }
-        
-        for day, hours in days_schedule.items():
-            if hours > 0:
-                weekly_total += hours
-        
-        self._print_evaluating(f"Calculating weekly total across all days...")
+        # Dynamically aggregate weekly total from parsed practice event categories
+        weekly_total = 0.0
+        for category, hours in practice_hours.items():
+            multiplier = 1
+            if category == 'Mon-Thu':
+                multiplier = 4
+            elif category == 'Friday':
+                multiplier = 1
+            elif category == 'Conditioning (MWF)':
+                multiplier = 3
+            elif 'Film Review' in category or 'Required Attendance' in category or 'Mandatory' in category:
+                multiplier = 1
+
+            total_hours = float(hours) * multiplier
+            weekly_total += total_hours
+            self._print_evaluating(f"Adding {total_hours}h from '{category}' (multiplier {multiplier}) to weekly total")
+
+        self._print_evaluating("Calculating weekly total based on parsed schedule categories...")
         self._print_action(f"Weekly Total Calculated: {weekly_total} hours")
         
         if weekly_total > weekly_max:
@@ -298,9 +344,52 @@ class ComplianceAgent:
             }
             self.violations.append(violation)
             self._print_action(f"🚨 VIOLATION: Weekly total exceeds limit ({weekly_total}h > {weekly_max}h)")
-        elif weekly_total > weekly_warning:
-            self._print_action(f"WARNING: Weekly total approaching limit ({weekly_total}h > {weekly_warning}h warning)")
-        
+        elif weekly_total >= weekly_warning:
+            violation = {
+                'type': 'WEEKLY_HOURS_WARNING',
+                'total_hours': weekly_total,
+                'threshold': weekly_warning,
+                'severity': 'WARNING'
+            }
+            self.violations.append(violation)
+            self._print_action(f"WARNING: Weekly total approaching limit ({weekly_total}h >= {weekly_warning}h warning)")
+
+        # Additional school-specific governance checks
+        rest_hours = self.compliance_rules['rules']['training_sessions']['minimum_rest_between_sessions_hours']
+        restrictions = self.compliance_rules.get('school_specific_rules', {}).get('additional_restrictions', [])
+        self._print_evaluating(f"Evaluating institutional training rest boundary: {rest_hours} hours")
+
+        if rest_hours and practice_hours.get('Conditioning (MWF)') and practice_hours.get('Mon-Thu'):
+            self._print_action("Interpreting potentially adjacent conditioning and practice blocks for rest compliance")
+            if float(practice_hours['Conditioning (MWF)']) >= 1.5 and int(practice_hours['Mon-Thu']) >= 3:
+                rest_warning = {
+                    'type': 'MINIMUM_REST_POTENTIAL_VIOLATION',
+                    'min_rest_between_sessions_hours': rest_hours,
+                    'severity': 'WARNING',
+                    'description': f"Conditioning and team practice blocks may reduce rest below {rest_hours}h between sessions."
+                }
+                self.violations.append(rest_warning)
+                self._print_action(f"WARNING: Potential minimum rest gap issue detected ({rest_hours}h required between sessions)")
+
+        if any('before 7:00 am' in restriction.lower() for restriction in restrictions):
+            flight_time_text = self.parsed_schedule.get('flight_time')
+            if flight_time_text:
+                try:
+                    flight_datetime = datetime.strptime(flight_time_text.strip().upper(), "%I:%M %p")
+                    if flight_datetime.hour < 7:
+                        violation = {
+                            'type': 'BEFORE_7AM_TRAVEL_VIOLATION',
+                            'flight_time': flight_time_text,
+                            'boundary': '07:00 AM',
+                            'severity': 'MAJOR'
+                        }
+                        self.violations.append(violation)
+                        self._print_action(
+                            f"🚨 VIOLATION: Flight/travel at {flight_time_text} violates school-specific 'No practice/travel before 7:00 AM' restriction"
+                        )
+                except ValueError:
+                    self._print_evaluating(f"Unable to parse flight time '{flight_time_text}' for 7:00 AM governance check")
+
         # Check exam conflicts with tournament travel
         if self.syllabus_data and 'courses' in self.syllabus_data:
             self._print_thought("Cross-referencing academic calendar with athletic events...")

@@ -7,7 +7,8 @@
 
 21-35s: Step 2 — Constraint Check
 - Show the engine cross-matching syllabus deadlines with tournament travel. Expand the exam schedule and highlight BUS-301 Midterm on 2026-06-22.
-- Mention weekly load calculation: demonstrates 19.0h weekly total.
+- Mention dynamic weekly aggregation: demonstrates **24.5h weekly total** (including hidden Film Review + Required Attendance events).
+- Highlight school-specific violation: 6:30 AM flight violates institutional "No practice before 7:00 AM" boundary.
 
 36-50s: Step 3 — Action Synthesis
 - Reveal remediation actions and generated email draft addressed "Dear Dr. Wong,". Click copy to clipboard to show readiness.

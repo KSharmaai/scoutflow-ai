@@ -35,6 +35,7 @@ This document describes the end-to-end pipeline used in the ScoutFlow AI hackath
 - **Phase 1 — Context Parsing (RegEx-driven)**:
   - Uses robust regular expressions to extract flight times and confirmation tokens (e.g., `DELTA-7849KL`).
   - Parses block lines describing practice adjustments, e.g., "Monday through Thursday: 3 hours/day" and "Friday: 4 hours" as well as conditioning sessions (1.5h MWF).
+  - **Scans entire schedule text for hidden mandatory events** using pattern matching (e.g., "Film Review", "Required Attendance") and extracts duration from time ranges.
   - Stores parsed tokens in `parsed_schedule` with safe fallbacks when tokens are missing.
 
 - **Phase 2 — Constraint Cross-Match (Relational Mock Work IQ nodes)**:
@@ -43,7 +44,15 @@ This document describes the end-to-end pipeline used in the ScoutFlow AI hackath
   - Cross-references tournament date ranges (e.g., June 20–23, 2026) with exam dates to detect direct collisions or pre-travel proximity (48 hours rule).
 
 - **Phase 3 — Mathematical Evaluation**:
-  - Computes daily totals by combining practice and conditioning sessions (example used in the demo: Mon=4.5h, Tue=3h, Wed=4.5h, Thu=3h, Fri=4h → weekly total 19.0h).
+  - **Dynamically aggregates weekly hours** by applying category-based multipliers to all parsed events:
+    - Mon-Thu practice: multiply by 4 (4 days/week)
+    - Friday practice: multiply by 1 (1 day)
+    - Conditioning (MWF): multiply by 3 (3 days/week)
+    - Hidden events: multiply by 1 (single occurrence)
+  - Example: 3h Mon-Thu × 4 + 4h Friday × 1 + 1.5h Conditioning × 3 + 2h Film Review + 2h Required Attendance = **24.5h weekly total**
+  - **Validates school-specific restrictions:**
+    - "No practice/travel before 7:00 AM" (detects 6:30 AM flight violations)
+    - "Minimum 4-hour rest between sessions" (flags adjacent practice blocks)
   - Applies numeric comparisons against CARA thresholds:
     - Warning threshold: 18.0 hours/week
     - Hard ceiling: 20.0 hours/week

@@ -1,10 +1,36 @@
 {
-  "timestamp": "2026-06-12T06:20:02.307092",
+  "timestamp": "2026-06-13T05:26:11.364638",
   "student_id": "SC-2024-08421",
   "student_name": "Sarah Chen",
   "alert_flag": true,
   "violation_level": "severe",
-  "violations": [],
+  "violations": [
+    {
+      "type": "DAILY_HOURS_WARNING",
+      "category": "Friday",
+      "hours": 4,
+      "threshold": 3.5,
+      "severity": "WARNING"
+    },
+    {
+      "type": "WEEKLY_HOURS_VIOLATION",
+      "total_hours": 24.5,
+      "limit": 20,
+      "severity": "MAJOR"
+    },
+    {
+      "type": "MINIMUM_REST_POTENTIAL_VIOLATION",
+      "min_rest_between_sessions_hours": 4,
+      "severity": "WARNING",
+      "description": "Conditioning and team practice blocks may reduce rest below 4h between sessions."
+    },
+    {
+      "type": "BEFORE_7AM_TRAVEL_VIOLATION",
+      "flight_time": "6:30 AM",
+      "boundary": "07:00 AM",
+      "severity": "MAJOR"
+    }
+  ],
   "conflicts": [
     {
       "type": "EXAM_TRAVEL_CONFLICT",
@@ -16,6 +42,7 @@
     }
   ],
   "remediation_actions": [
+    "CRITICAL: Redistribute weekly practice hours from 24.5h to maximum 20h across the week to avoid eligibility suspension.",
     "Request exam accommodation for BUS-301 Midterm Exam (scheduled 2026-06-22) due to mandatory championship tournament travel (2026-06-20 to 2026-06-23). Contact professor immediately."
   ],
   "recommendation": "\ud83d\udea8 URGENT ACTION REQUIRED: Critical exam-travel conflict detected. Contact academic advisor and professors immediately to arrange accommodations. Monitor compliance violations closely."

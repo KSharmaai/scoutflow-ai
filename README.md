@@ -32,16 +32,19 @@ ScoutFlow AI implements a **deterministic, Foundry-inspired reasoning orchestrat
 ### **Step 1: Context Parsing**
 - Extracts unstructured data from `messy_schedule.txt` (chaotic coach emails).
 - Parses practice hours, flight confirmations, tournament dates.
+- **Dynamically detects hidden mandatory events** (e.g., "Film Review" 7-9 PM → 2.0 hours) throughout entire schedule text.
 - Converts raw text into structured temporal objects.
-- **Output:** Cleaned schedule metadata with exact calendar times.
+- **Output:** Cleaned schedule metadata with exact calendar times and all parsed event categories.
 
 ### **Step 2: Constraint Verification**
-- Cross-references parsed hours against `compliance_rules.json` (NCAA CARA thresholds).
+- Cross-references **dynamically aggregated** practice hours against `compliance_rules.json` (NCAA CARA thresholds).
+- Applies per-category multipliers (Mon-Thu × 4, Friday × 1, Conditioning × 3) to compute weekly totals from parsed events.
 - Checks daily limits (4 hours max, 3.5 hour warning).
 - Checks weekly limits (20 hours max, 18 hour warning).
+- **Validates school-specific rules:** No practice/travel before 7:00 AM, minimum 4-hour rest between sessions.
 - Queries `syllabus_deadlines.json` for exam dates.
-- **Detects:** Exam-travel conflicts, daily/weekly violations, rest day violations.
-- **Output:** Structured violation and conflict reports.
+- **Detects:** Exam-travel conflicts, daily/weekly violations, rest day violations, institutional boundary breaches.
+- **Output:** Structured violation and conflict reports with severity ratings.
 
 ### **Step 3: Remediation & Action Synthesis**
 - Generates remediation actions for each violation.
@@ -116,6 +119,16 @@ Interactive web interface built using an enterprise-grade **Microsoft Fluent Des
 - Judges can see **exactly** what the agent is thinking at each stage
 - Three distinct reasoning markers: `[THOUGHT]`, `[EVALUATING]`, `[ACTION]`
 - Complete reasoning log preserved and displayable
+
+### ✅ **Dynamic Schedule Parsing with Hidden Event Detection**
+- Extracts not only explicit practice blocks but also hidden mandatory events (Film Review, Required Attendance).
+- Parses time ranges to calculate event duration (e.g., "7-9 PM" → 2.0 hours).
+- Applies intelligent multipliers to compute accurate weekly aggregations.
+
+### ✅ **School-Specific Enterprise Governance**
+- Validates institutional restrictions (e.g., "No practice before 7:00 AM", "12-hour rest between sessions").
+- Flags violations like 6:30 AM flights against school travel boundaries.
+- Reads governance rules from `compliance_rules.json` `school_specific_rules` object.
 
 ### ✅ **NCAA CARA Compliance Validation**
 - **Daily limits:** 4 hours max, 3.5 hour warning threshold

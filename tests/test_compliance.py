@@ -73,10 +73,50 @@ class TestComplianceAgent(unittest.TestCase):
         # Check reasoning log contains the weekly total calculation and warning
         joined = "\n".join(agent.reasoning_log)
         self.assertIn('Weekly Total Calculated', joined)
-        # Expect 19.0 total
-        self.assertIn('19.0', joined)
-        # Expect a warning about approaching weekly threshold (18h)
-        self.assertIn('approaching limit', joined.lower())
+        # Expect 24.5 total based on dynamic hidden event (Film Review + Required Attendance) and conditioning parsing
+        self.assertIn('24.5', joined)
+        # Expect a violation about exceeding weekly threshold
+        self.assertIn('exceeds limit', joined.lower())
+
+    def test_weekly_warning_at_exact_threshold(self):
+        """Exactly 18.0 hours should trigger a weekly warning."""
+        agent = ComplianceAgent(data_dir="data")
+        agent.syllabus_data = {'student': {'id': 'TEST', 'name': 'Test Student'}, 'courses': []}
+        agent.parsed_schedule = {
+            'practice_hours': {
+                'Mon-Thu': 3.4,
+                'Friday': 3.4,
+                'Film Review': 1.0
+            },
+            'flight_time': '08:30 AM'
+        }
+        agent.violations = []
+        agent.conflicts = []
+
+        agent._verify_constraints_impl()
+
+        self.assertTrue(any(v.get('type') == 'WEEKLY_HOURS_WARNING' for v in agent.violations))
+        self.assertEqual(agent._determine_violation_level(), 'warning')
+
+    def test_weekly_compliant_below_threshold(self):
+        """Exactly 17.9 hours should remain compliant with no weekly warning."""
+        agent = ComplianceAgent(data_dir="data")
+        agent.syllabus_data = {'student': {'id': 'TEST', 'name': 'Test Student'}, 'courses': []}
+        agent.parsed_schedule = {
+            'practice_hours': {
+                'Mon-Thu': 3.4,
+                'Friday': 3.4,
+                'Film Review': 0.9
+            },
+            'flight_time': '08:30 AM'
+        }
+        agent.violations = []
+        agent.conflicts = []
+
+        agent._verify_constraints_impl()
+
+        self.assertFalse(any(v.get('type') == 'WEEKLY_HOURS_WARNING' for v in agent.violations))
+        self.assertEqual(agent._determine_violation_level(), 'no_violation')
 
 
 if __name__ == '__main__':
