@@ -1,0 +1,11 @@
+[client]
+showErrorDetails = true
+
+[server]
+port = 8080
+address = "0.0.0.0"
+enableXsrfProtection = false
+enableCORS = true
+
+[browser]
+gatherUsageStats = false
