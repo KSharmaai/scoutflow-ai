@@ -49,7 +49,7 @@ This document describes the end-to-end pipeline used in the ScoutFlow AI hackath
     - Friday practice: multiply by 1 (1 day)
     - Conditioning (MWF): multiply by 3 (3 days/week)
     - Hidden events: multiply by 1 (single occurrence)
-  - Example: 3h Mon-Thu × 4 + 4h Friday × 1 + 1.5h Conditioning × 3 + 2h Film Review + 2h Required Attendance = **24.5h weekly total**
+  - Example: 3h Mon-Thu × 4 + 4h Friday × 1 + 1.5h Conditioning × 3 + 2h Film Review = **22.5h weekly total**
   - **Validates school-specific restrictions:**
     - "No practice/travel before 7:00 AM" (detects 6:30 AM flight violations)
     - "Minimum 4-hour rest between sessions" (flags adjacent practice blocks)
@@ -87,9 +87,3 @@ This document describes the end-to-end pipeline used in the ScoutFlow AI hackath
 ---
 
 This architecture doc complements the README and provides an at-a-glance flowchart for judges evaluating reasoning, safety, and reliability.
-
-
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true });
-</script>
