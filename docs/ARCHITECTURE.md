@@ -1,30 +1,6 @@
-```mermaid
-flowchart TD
-    A[Ingestion: messy_schedule.txt] --> B[Phase 1: Context Parsing]
-    B --> B1[Extract Flights]
-    B --> B2[Extract Practice Metrics]
-    B1 --> C[Phase 2: Constraint Cross-Match]
-    B2 --> C
-    C --> C1[Match Syllabus Deadlines]
-    C --> C2[Match Tournament Travel Blocks]
-    C1 --> D[Phase 3: Mathematical Evaluation]
-    C2 --> D
-    D --> D1[Compute Daily Totals]
-    D --> D2[Compute Weekly Total]
-    D2 --> E{Compare against NCAA CARA}
-    E -->|>= 20h| F[Hard Ceiling Violation]
-    E -->|>= 18h and <20h| G[Warning Threshold]
-    E -->|< 18h| H[Compliant]
-    F --> I[Phase 4: Action Synthesis]
-    G --> I
-    H --> I
-    I --> J[Write compliance_status.json]
-    I --> K[Generate accommodation email]
-    J --> L[Streamlit Dashboard / Output Folder]
-    K --> L
-```
-
 # ScoutFlow AI — Architecture & Flow
+
+![ScoutFlow Architecture Diagram](architecture.png)
 
 This document describes the end-to-end pipeline used in the ScoutFlow AI hackathon submission. It maps the Foundry-inspired reasoning stages used to transform an unstructured coach communication into compliance telemetry and actionable remediation.
 
