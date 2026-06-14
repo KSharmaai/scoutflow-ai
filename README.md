@@ -1,7 +1,6 @@
 # ScoutFlow AI 🚀
 
-<!-- Replace HTidtcjJvFc with your actual video ID -->
-[![Watch the ScoutFlow AI Demo](https://youtu.be/HTidtcjJvFc)
+[![Watch the ScoutFlow AI Demo](https://img.youtube.com/vi/HTidtcjJvFc/0.jpg)](https://www.youtube.com/watch?v=HTidtcjJvFc)
 
 <div style="background:linear-gradient(90deg,#004578,#0078d4);padding:12px;border-radius:8px;margin-bottom:12px;text-align:center;">
   <a href="https://ksharmaai.github.io/scoutflow-ai/AGENTS_LEAGUE_SUBMISSION.html" style="color:#fff;font-weight:700;text-decoration:none;font-family:Segoe UI, system-ui, sans-serif;" target="_blank">Open Official Agents League Submission Guide →</a>
