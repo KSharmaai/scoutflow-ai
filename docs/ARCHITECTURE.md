@@ -87,3 +87,9 @@ This document describes the end-to-end pipeline used in the ScoutFlow AI hackath
 ---
 
 This architecture doc complements the README and provides an at-a-glance flowchart for judges evaluating reasoning, safety, and reliability.
+
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true });
+</script>
